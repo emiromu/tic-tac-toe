@@ -5,9 +5,12 @@
 2
 */
 
+/* suits : 'o' 'x' */
+
 const playerFactory = (name, suit) => {
     const getName = () => name;
     const getSuit = () => suit;
+    
     return { getName, getSuit };
   };
 
@@ -19,7 +22,15 @@ const gameBoard = (() => {
     };
     const render = () => {
         for(let i=0; i<cells.length;i++){
-            document.querySelector(`#cell`+i).textContent = cells[i];
+            switch(cells[i]){
+                case 'x' :
+                    document.querySelector(`#cell`+i).textContent = 'X';
+                    break;
+                case 'o' :
+                    document.querySelector(`#cell`+i).textContent = 'O';
+                    break;
+                default : document.querySelector(`#cell`+i).textContent = '';
+            }       
         }
     };
 
@@ -30,8 +41,8 @@ const gameRound = (() => {
 
 })();
 
-const computerPlayer = playerFactory('computer','circle');
-const humanPlayer = playerFactory("player",'cross');
+const computerPlayer = playerFactory('computer','x');
+const humanPlayer = playerFactory("player",'o');
 
 const displayBoard = document.querySelector("#displayBoard");
 
@@ -39,8 +50,11 @@ const displayBoard = document.querySelector("#displayBoard");
 /*event listeners for cells*/
 for(let i=0; i<9; i++){
     document.querySelector(`#cell`+i).addEventListener("click", function(e){
-        gameBoard.tickCell(i,'a');
+        if(gameBoard.cells[i]==''){
+            gameBoard.tickCell(i,humanPlayer.getSuit());
+        }   
         gameBoard.render();
     });
 }
 
+gameBoard.render();
