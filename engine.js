@@ -7,11 +7,12 @@ Board cells :
 
 suits : 'o' 'x' */
 
-const playerFactory = (name, suit) => {
-    const getName = () => name;
+
+const playerFactory = (type, suit) => {
+    const getType= () => type;
     const getSuit = () => suit;
     
-    return { getName, getSuit };
+    return { getType, getSuit };
   };
 
 const gameBoard = (() => {
@@ -38,24 +39,20 @@ const gameBoard = (() => {
         //check horizontal lines
         for(let i=0; i<3; i++){
             if(gameBoard.cells[i]!='' && (gameBoard.cells[i]===gameBoard.cells[i+3]&&gameBoard.cells[i]===gameBoard.cells[i+6])){
-                console.log(`${gameBoard.cells[i]} wins`);
                 return `${gameBoard.cells[i]} wins`;
             }
         }
         //check vertical lines
         for(let i=0; i<7; i=i+3){
             if(gameBoard.cells[i]!='' && (gameBoard.cells[i]===gameBoard.cells[i+1]&&gameBoard.cells[i]===gameBoard.cells[i+2])){
-                console.log(`${gameBoard.cells[i]} wins`);
                 return `${gameBoard.cells[i]} wins`;
             }
         }
         //check diagonal lines
         if(gameBoard.cells[0]!='' && (gameBoard.cells[0]===gameBoard.cells[4]&&gameBoard.cells[0]===gameBoard.cells[8])){
-            console.log(`${gameBoard.cells[0]} wins`);
             return `${gameBoard.cells[0]} wins`;
         };
         if(gameBoard.cells[2]!='' && (gameBoard.cells[2]===gameBoard.cells[4]&&gameBoard.cells[2]===gameBoard.cells[6])){
-            console.log(`${gameBoard.cells[2]} wins`);
             return `${gameBoard.cells[2]} wins`;
         };
         //check for draw
@@ -79,36 +76,89 @@ const gameBoard = (() => {
     return {cells, tickCell, render, isGameOver, boardReset};
 })();
 
-const gameLoop = (() => {
+const gameCore = (() => {
 
-    const computerPlayer = playerFactory('computer','x');
-    const humanPlayer = playerFactory("player",'o');
+    let gameMode = 'pvp';
+    let currentPlayer = 0;
+    let gameOver=false;
 
+    //Default pvp game mode
+    const players = [playerFactory('human','x'),playerFactory('human','o')];
+    
 
-    return {computerPlayer, humanPlayer};
+    return {players, currentPlayer, gameOver, gameMode};
 })();
+
+
 
 /*HTML elements to display the game board*/
 const displayBoard = document.querySelector("#displayBoard");
 const gameModePVP = document.querySelector("#radioA1");
 const gameModePVE = document.querySelector("#radioA2");
 const pveSelect = document.querySelector("#pveSelect");
+const startButton = document.querySelector("#startGame");
+
+startButton.addEventListener("click",function(e){
+    
+    document.getElementById("cell0").className = "cell";
+    document.getElementById("cell1").className = "cell";
+    document.getElementById("cell2").className = "cell";
+    document.getElementById("cell3").className = "cell";
+    document.getElementById("cell4").className = "cell";
+    document.getElementById("cell5").className = "cell";
+    document.getElementById("cell6").className = "cell";
+    document.getElementById("cell7").className = "cell";
+    document.getElementById("cell8").className = "cell";
+
+    gameBoard.boardReset();
+    gameCore.gameOver=false;
+    gameCore.currentPlayer=0;
+    document.querySelector("#referee").textContent=`${gameCore.players[gameCore.currentPlayer].getSuit()}'s turn`;
+    gameBoard.render();
+
+});
 
 /*event listeners for cells*/
 for(let i=0; i<9; i++){
     document.querySelector(`#cell`+i).addEventListener("click", function(e){
-        if(gameBoard.cells[i]==''){
-            gameBoard.tickCell(i,gameLoop.humanPlayer.getSuit());
+        if(gameBoard.cells[i]=='' && gameCore.gameOver==false){
+            gameBoard.tickCell(i,gameCore.players[gameCore.currentPlayer].getSuit());
+            if(gameCore.currentPlayer==0){
+                gameCore.currentPlayer=1;
+            }else{
+                gameCore.currentPlayer=0;
+            };     
+            
+            switch(gameBoard.isGameOver()){
+                case 'draw':
+                    gameCore.gameOver=true;
+                    break;
+                case 'ongoing':
+                    break;
+                case 'x wins':
+                    gameCore.gameOver=true;
+                    break;
+                case 'o wins':
+                    gameCore.gameOver=true;
+                    break;
+            }
         }   
+        document.querySelector("#referee").textContent=`${gameCore.players[gameCore.currentPlayer].getSuit()}'s turn`;
         gameBoard.render();
-        gameBoard.isGameOver();
+        
+        if(gameCore.gameOver==true){
+            document.querySelector("#referee").textContent = gameBoard.isGameOver();
+        };
+
     });
 }
 
+/*event listeners for game options*/
 gameModePVP.addEventListener("change", function(e){
     if(gameModePVP.checked){
         while(pveSelect.lastChild!=null)
         {
+            gameLoop.gameMode='pvp';
             pveSelect.lastChild.remove();
         }
     };
@@ -133,9 +183,9 @@ gameModePVE.addEventListener("change", function(e){
         pveSelect.innerHTML += 'O';
 
         document.querySelector("#pveMenuA1").checked=true;
+        gameCore.gameMode='pve';
     };
 });
 
 
-//render on Page Load
-gameBoard.render();
+
