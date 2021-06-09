@@ -122,6 +122,7 @@ startButton.addEventListener("click",function(e){
 for(let i=0; i<9; i++){
     document.querySelector(`#cell`+i).addEventListener("click", function(e){
         if(gameBoard.cells[i]=='' && gameCore.gameOver==false){
+            startButton.textContent="Restart";
             gameBoard.tickCell(i,gameCore.players[gameCore.currentPlayer].getSuit());
             if(gameCore.currentPlayer==0){
                 gameCore.currentPlayer=1;
@@ -147,7 +148,7 @@ for(let i=0; i<9; i++){
         gameBoard.render();
         
         if(gameCore.gameOver==true){
-            document.querySelector("#referee").textContent = gameBoard.isGameOver();
+            document.querySelector("#referee").textContent = `✺◟( ᐛ )◞✺   ${gameBoard.isGameOver()}   ✺◟( ᐖ )◞✺`;
         };
 
     });
@@ -158,7 +159,7 @@ gameModePVP.addEventListener("change", function(e){
     if(gameModePVP.checked){
         while(pveSelect.lastChild!=null)
         {
-            gameLoop.gameMode='pvp';
+            gameCore.gameMode='pvp';
             pveSelect.lastChild.remove();
         }
     };
@@ -173,14 +174,14 @@ gameModePVE.addEventListener("change", function(e){
         pveMenuA1.setAttribute("id","pveMenuA1");
         pveMenuA1.setAttribute("name","suitSelect");
         pveSelect.appendChild(pveMenuA1);
-        pveSelect.innerHTML += 'X &nbsp; &nbsp;';
+        pveSelect.innerHTML += 'X (go first)&nbsp; &nbsp;';
 
         let pveMenuA2 = document.createElement("input");
         pveMenuA2.setAttribute("type","radio");
         pveMenuA2.setAttribute("id","pveMenuA2");
         pveMenuA2.setAttribute("name","suitSelect");
         pveSelect.appendChild(pveMenuA2);
-        pveSelect.innerHTML += 'O';
+        pveSelect.innerHTML += 'O (go second)';
 
         document.querySelector("#pveMenuA1").checked=true;
         gameCore.gameMode='pve';
