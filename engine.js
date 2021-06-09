@@ -79,7 +79,7 @@ const gameBoard = (() => {
     return {cells, tickCell, render, isGameOver, boardReset};
 })();
 
-const gameRound = (() => {
+const gameLoop = (() => {
 
     const computerPlayer = playerFactory('computer','x');
     const humanPlayer = playerFactory("player",'o');
@@ -90,17 +90,52 @@ const gameRound = (() => {
 
 /*HTML elements to display the game board*/
 const displayBoard = document.querySelector("#displayBoard");
+const gameModePVP = document.querySelector("#radioA1");
+const gameModePVE = document.querySelector("#radioA2");
+const pveSelect = document.querySelector("#pveSelect");
 
 /*event listeners for cells*/
 for(let i=0; i<9; i++){
     document.querySelector(`#cell`+i).addEventListener("click", function(e){
         if(gameBoard.cells[i]==''){
-            gameBoard.tickCell(i,gameRound.humanPlayer.getSuit());
+            gameBoard.tickCell(i,gameLoop.humanPlayer.getSuit());
         }   
         gameBoard.render();
         gameBoard.isGameOver();
     });
 }
+
+gameModePVP.addEventListener("change", function(e){
+    if(gameModePVP.checked){
+        while(pveSelect.lastChild!=null)
+        {
+            pveSelect.lastChild.remove();
+        }
+    };
+});
+
+gameModePVE.addEventListener("change", function(e){
+    if(gameModePVE.checked){
+        pveSelect.innerHTML += '<br>Player symbol : ';
+
+        let pveMenuA1 = document.createElement("input");
+        pveMenuA1.setAttribute("type","radio");
+        pveMenuA1.setAttribute("id","pveMenuA1");
+        pveMenuA1.setAttribute("name","suitSelect");
+        pveSelect.appendChild(pveMenuA1);
+        pveSelect.innerHTML += 'X &nbsp; &nbsp;';
+
+        let pveMenuA2 = document.createElement("input");
+        pveMenuA2.setAttribute("type","radio");
+        pveMenuA2.setAttribute("id","pveMenuA2");
+        pveMenuA2.setAttribute("name","suitSelect");
+        pveSelect.appendChild(pveMenuA2);
+        pveSelect.innerHTML += 'O';
+
+        document.querySelector("#pveMenuA1").checked=true;
+    };
+});
+
 
 //render on Page Load
 gameBoard.render();

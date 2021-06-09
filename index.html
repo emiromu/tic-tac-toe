@@ -6,10 +6,26 @@
 </header>
 <body>
     <div id="main" class="main">
+        <h3>Tic-tac-toe (The Odin Foundation project; by emiromu)</h3>
         <div id="topMenu" class="topMenu">
-
+            <div id="rules">
+                X goes first
+            </div>
+            <br>
+            <div id="gameModeSelect">Game mode : 
+                <input type="radio" id="radioA1" name="gameMode" checked> Player vs Player &nbsp; &nbsp;
+                <input type="radio" id="radioA2" name="gameMode" > Player vs IA &nbsp; &nbsp;
+            </div>
+            <div id="pveSelect">
+            </div>
+            <br>
+            <button id="startGame">Start</button>
         </div>
         <div id="gameArea" class="gameArea">
+            <div id="referee">
+                Choose options and press "Start"
+            </div>
+            <br>
             <div id="displayBoard">
                 <div id="boardCol1" class="col">
                     <div id="cell0" class="cell"></div>
