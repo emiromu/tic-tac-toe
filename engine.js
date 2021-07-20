@@ -152,25 +152,6 @@ for(let i=0; i<9; i++){
             startButton.textContent="Restart";
             gameBoard.tickCell(i,gameCore.players[gameCore.currentPlayer].getSuit());
             
-            if(gameCore.gameMode=='pvp'){
-                if(gameCore.currentPlayer==0){
-                    gameCore.currentPlayer=1;
-                }else{
-                    gameCore.currentPlayer=0;
-                };   
-            }else if(gameCore.gameMode=='pve'){
-                if(gameCore.currentPlayer==0){
-                    gameCore.currentPlayer=1;
-                    gameBoard.AIturn(gameCore.players[gameCore.currentPlayer].getSuit());
-                    gameCore.currentPlayer=0;
-                }else{
-                    gameCore.currentPlayer=0;
-                    gameBoard.AIturn(gameCore.players[gameCore.currentPlayer].getSuit());
-                    gameCore.currentPlayer=1;
-                };   
-            };
-              
-            
             switch(gameBoard.isGameOver()){
                 case 'draw':
                     gameCore.gameOver=true;
@@ -184,6 +165,55 @@ for(let i=0; i<9; i++){
                     gameCore.gameOver=true;
                     break;
             }
+
+            if(gameCore.gameMode=='pvp'){
+                if(gameCore.currentPlayer==0){
+                    gameCore.currentPlayer=1;
+                }else{
+                    gameCore.currentPlayer=0;
+                };   
+            }else if(gameCore.gameMode=='pve'){
+                if(gameCore.currentPlayer==0 && gameCore.gameOver!=true){
+                    gameCore.currentPlayer=1;
+                    gameBoard.AIturn(gameCore.players[gameCore.currentPlayer].getSuit());
+                    gameCore.currentPlayer=0;
+
+                    switch(gameBoard.isGameOver()){
+                        case 'draw':
+                            gameCore.gameOver=true;
+                            break;
+                        case 'ongoing':
+                            break;
+                        case 'x wins':
+                            gameCore.gameOver=true;
+                            break;
+                        case 'o wins':
+                            gameCore.gameOver=true;
+                            break;
+                    }
+                }else if (gameCore.currentPlayer==1 && gameCore.gameOver!=true){
+                    gameCore.currentPlayer=0;
+                    gameBoard.AIturn(gameCore.players[gameCore.currentPlayer].getSuit());
+                    gameCore.currentPlayer=1;
+
+                    switch(gameBoard.isGameOver()){
+                        case 'draw':
+                            gameCore.gameOver=true;
+                            break;
+                        case 'ongoing':
+                            break;
+                        case 'x wins':
+                            gameCore.gameOver=true;
+                            break;
+                        case 'o wins':
+                            gameCore.gameOver=true;
+                            break;
+                    }
+                };   
+            };
+              
+            
+            
         }   
         document.querySelector("#referee").textContent=`${gameCore.players[gameCore.currentPlayer].getSuit()}'s turn`;
         gameBoard.render();
