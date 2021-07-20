@@ -73,12 +73,24 @@ const gameBoard = (() => {
         return 'board reset';
     };
 
-    return {cells, tickCell, render, isGameOver, boardReset};
+    const AIturn = (AIsuit) =>{
+        let choice = Math.floor(Math.random() * 8);
+        while(cells[choice]!=''){
+            choice = Math.floor(Math.random() * 8);
+        }
+        tickCell(choice,AIsuit);
+        render();
+        
+        return 'AI took a turn';
+    };
+
+    return {cells, tickCell, render, isGameOver, boardReset, AIturn};
 })();
 
 const gameCore = (() => {
 
     let gameMode = 'pvp';
+    let initiative = 'n/a';
     let currentPlayer = 0;
     let gameOver=false;
 
@@ -86,7 +98,7 @@ const gameCore = (() => {
     const players = [playerFactory('human','x'),playerFactory('human','o')];
     
 
-    return {players, currentPlayer, gameOver, gameMode};
+    return {players, currentPlayer, gameOver, gameMode, initiative};
 })();
 
 
@@ -110,9 +122,24 @@ startButton.addEventListener("click",function(e){
     document.getElementById("cell7").className = "cell";
     document.getElementById("cell8").className = "cell";
 
+    if(gameCore.gameMode=='pvp'){
+        gameCore.players = [playerFactory('human','x'),playerFactory('human','o')];
+    }else if(gameCore.gameMode=='pve' && gameCore.initiative=='first'){
+        gameCore.players = [playerFactory('human','x'),playerFactory('ai','o')];
+    }else if(gameCore.gameMode=='pve' && gameCore.initiative=='second'){
+        gameCore.players = [playerFactory('ai','x'),playerFactory('human','o')];
+    };
+
     gameBoard.boardReset();
     gameCore.gameOver=false;
     gameCore.currentPlayer=0;
+
+    //Init first AI turn if pve w initiative second
+    if(gameCore.gameMode=='pve' && gameCore.players[gameCore.currentPlayer].getType()=='ai'){
+        gameBoard.AIturn(gameCore.players[gameCore.currentPlayer].getSuit());
+        gameCore.currentPlayer=1;
+    };
+    
     document.querySelector("#referee").textContent=`${gameCore.players[gameCore.currentPlayer].getSuit()}'s turn`;
     gameBoard.render();
 
@@ -124,11 +151,25 @@ for(let i=0; i<9; i++){
         if(gameBoard.cells[i]=='' && gameCore.gameOver==false){
             startButton.textContent="Restart";
             gameBoard.tickCell(i,gameCore.players[gameCore.currentPlayer].getSuit());
-            if(gameCore.currentPlayer==0){
-                gameCore.currentPlayer=1;
-            }else{
-                gameCore.currentPlayer=0;
-            };     
+            
+            if(gameCore.gameMode=='pvp'){
+                if(gameCore.currentPlayer==0){
+                    gameCore.currentPlayer=1;
+                }else{
+                    gameCore.currentPlayer=0;
+                };   
+            }else if(gameCore.gameMode=='pve'){
+                if(gameCore.currentPlayer==0){
+                    gameCore.currentPlayer=1;
+                    gameBoard.AIturn(gameCore.players[gameCore.currentPlayer].getSuit());
+                    gameCore.currentPlayer=0;
+                }else{
+                    gameCore.currentPlayer=0;
+                    gameBoard.AIturn(gameCore.players[gameCore.currentPlayer].getSuit());
+                    gameCore.currentPlayer=1;
+                };   
+            };
+              
             
             switch(gameBoard.isGameOver()){
                 case 'draw':
@@ -160,6 +201,7 @@ gameModePVP.addEventListener("change", function(e){
         while(pveSelect.lastChild!=null)
         {
             gameCore.gameMode='pvp';
+            gameCore.initiative='n/a';
             pveSelect.lastChild.remove();
         }
     };
@@ -185,6 +227,16 @@ gameModePVE.addEventListener("change", function(e){
 
         document.querySelector("#pveMenuA1").checked=true;
         gameCore.gameMode='pve';
+        //default pve setting
+        gameCore.initiative='first';
+
+        document.querySelector("#pveMenuA1").addEventListener("change", function(e){
+            gameCore.initiative='first';
+        });
+
+        document.querySelector("#pveMenuA2").addEventListener("change", function(e){
+            gameCore.initiative='second';
+        });
     };
 });
 
